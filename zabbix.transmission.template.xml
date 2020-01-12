@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>4.4</version>
+    <date>2020-01-12T23:01:13Z</date>
+    <groups>
+        <group>
+            <name>Templates/Modules</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Transmission</template>
+            <name>Transmission</name>
+            <description>Начать с установки компонента transmissionrpc&#13;
+$ sudo apt install python-transmissionrpc&#13;
+Загрузить в /usr/lib/zabbix/externalscripts фвйл transmission.py&#13;
+Задать этому файлу права на исполнение.&#13;
+Присоединить этот шаблон к хосту с тем же IP что и сервер на котором transmision-daemon.&#13;
+Добавить хосту макрос {$TRANSMISSIONPOST} указывающий номер порта веб-интерфейса Transmission. Обычно это 9091. Авторизация должна быть отключена.</description>
+            <groups>
+                <group>
+                    <name>Templates/Modules</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Transmission</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>TransmissionStatus</name>
+                    <type>SIMPLE</type>
+                    <key>net.tcp.service[http,,9091]</key>
+                    <delay>60s</delay>
+                    <applications>
+                        <application>
+                            <name>Transmission</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{last()}=0</expression>
+                            <name>Transmission-daemon не запущен на {HOST.NAME}</name>
+                            <priority>AVERAGE</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Количество закачек</name>
+                    <type>EXTERNAL</type>
+                    <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},count]</key>
+                    <delay>10m</delay>
+                    <applications>
+                        <application>
+                            <name>Transmission</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Скорость скачивания</name>
+                    <type>EXTERNAL</type>
+                    <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},download]</key>
+                    <units>Bps</units>
+                    <applications>
+                        <application>
+                            <name>Transmission</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Размер закачек</name>
+                    <type>EXTERNAL</type>
+                    <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},size]</key>
+                    <delay>3600s</delay>
+                    <units>B</units>
+                    <applications>
+                        <application>
+                            <name>Transmission</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Скорость отдачи</name>
+                    <type>EXTERNAL</type>
+                    <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},upload]</key>
+                    <units>Bps</units>
+                    <applications>
+                        <application>
+                            <name>Transmission</name>
+                        </application>
+                    </applications>
+                </item>
+            </items>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>Обнаружение закачек</name>
+                    <type>EXTERNAL</type>
+                    <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST}]</key>
+                    <delay>3600s</delay>
+                    <filter>
+                        <conditions>
+                            <condition>
+                                <macro>{#TORENTHASH}</macro>
+                                <value>^[abcdef0-9]{40}$</value>
+                                <formulaid>A</formulaid>
+                            </condition>
+                        </conditions>
+                    </filter>
+                    <lifetime>0</lifetime>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Ошибка {#TORENTHASH}</name>
+                            <type>EXTERNAL</type>
+                            <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},error]</key>
+                            <delay>300s</delay>
+                            <applications>
+                                <application>
+                                    <name>Transmission</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Имя {#TORENTHASH}</name>
+                            <type>EXTERNAL</type>
+                            <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},name]</key>
+                            <delay>3600s</delay>
+                            <trends>0</trends>
+                            <value_type>CHAR</value_type>
+                            <applications>
+                                <application>
+                                    <name>Transmission</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Прогресс {#TORENTHASH}</name>
+                            <type>EXTERNAL</type>
+                            <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},progress]</key>
+                            <delay>600s</delay>
+                            <applications>
+                                <application>
+                                    <name>Transmission</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Рейтинг {#TORENTHASH}</name>
+                            <type>EXTERNAL</type>
+                            <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},ratio]</key>
+                            <delay>3600s</delay>
+                            <value_type>FLOAT</value_type>
+                            <applications>
+                                <application>
+                                    <name>Transmission</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Размер {#TORENTHASH}</name>
+                            <type>EXTERNAL</type>
+                            <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},size]</key>
+                            <delay>3600s</delay>
+                            <units>B</units>
+                            <applications>
+                                <application>
+                                    <name>Transmission</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Статус {#TORENTHASH}</name>
+                            <type>EXTERNAL</type>
+                            <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},status]</key>
+                            <delay>300s</delay>
+                            <trends>0</trends>
+                            <value_type>CHAR</value_type>
+                            <applications>
+                                <application>
+                                    <name>Transmission</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                    </item_prototypes>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <expression>{Transmission:transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},name].strlen()}&gt;0&#13;
+and&#13;
+({Transmission:transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},status].str(checking)}=1 or {Transmission:transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},status].str(check pending)}=1)</expression>
+                            <name>Закачка {ITEM.LASTVALUE} верифицируется либо в ожидании верификации</name>
+                            <priority>AVERAGE</priority>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Transmission:transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},name].strlen()}&gt;0&#13;
+and&#13;
+{Transmission:transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},status].str(stopped)}=1</expression>
+                            <name>Закачка {ITEM.LASTVALUE} остановлена</name>
+                            <priority>AVERAGE</priority>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Transmission:transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},name].strlen()}&gt;0&#13;
+and&#13;
+{Transmission:transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},progress].last()}&lt;100</expression>
+                            <name>Закачка {ITEM.LASTVALUE} скачивается</name>
+                            <priority>INFO</priority>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Transmission:transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},name].strlen()}&gt;0&#13;
+and&#13;
+{Transmission:transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},error].last()}&gt;0</expression>
+                            <name>Ошибка на закачке {ITEM.LASTVALUE}</name>
+                            <priority>HIGH</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Transmission:transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},name].strlen()}&gt;0&#13;
+and&#13;
+{Transmission:transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},ratio].last()}&gt;10</expression>
+                            <name>Рейтинг закачки {ITEM.LASTVALUE}  достиг {ITEM.LASTVALUE2}</name>
+                            <priority>INFO</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                    </trigger_prototypes>
+                    <graph_prototypes>
+                        <graph_prototype>
+                            <name>Рейтинг {#TORENTHASH}</name>
+                            <height>300</height>
+                            <ymin_type_1>FIXED</ymin_type_1>
+                            <graph_items>
+                                <graph_item>
+                                    <drawtype>FILLED_REGION</drawtype>
+                                    <color>0080FF</color>
+                                    <item>
+                                        <host>Transmission</host>
+                                        <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},{#TORENTHASH},ratio]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                    </graph_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+        </template>
+    </templates>
+    <graphs>
+        <graph>
+            <name>Количество закачек</name>
+            <graph_items>
+                <graph_item>
+                    <drawtype>FILLED_REGION</drawtype>
+                    <color>00FFFF</color>
+                    <item>
+                        <host>Transmission</host>
+                        <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},count]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Размер закачек</name>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <graph_items>
+                <graph_item>
+                    <drawtype>FILLED_REGION</drawtype>
+                    <color>4000FF</color>
+                    <item>
+                        <host>Transmission</host>
+                        <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},size]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Трафик</name>
+            <height>300</height>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <graph_items>
+                <graph_item>
+                    <drawtype>BOLD_LINE</drawtype>
+                    <color>0040FF</color>
+                    <item>
+                        <host>Transmission</host>
+                        <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},upload]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <drawtype>BOLD_LINE</drawtype>
+                    <color>F63100</color>
+                    <item>
+                        <host>Transmission</host>
+                        <key>transmission.py[{HOST.IP},{$TRANSMISSIONPOST},download]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+    </graphs>
+</zabbix_export>
