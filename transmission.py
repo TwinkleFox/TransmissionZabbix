@@ -1,9 +1,14 @@
 #!/usr/bin/python
 # -- coding: utf-8 --
 import sys
+import traceback
 import transmissionrpc
 if len (sys.argv) >= 3:
-    client = transmissionrpc.Client(sys.argv[1], port=sys.argv[2])
+    try:
+        client = transmissionrpc.Client(sys.argv[1], port=sys.argv[2])
+    except Exception as e:
+        print('Ошибка подключения')
+        raise SystemExit
     torrents = client.info()
     if len (sys.argv) == 5:
         for tid, torrent in torrents.iteritems():
@@ -43,4 +48,3 @@ if len (sys.argv) >= 3:
         print ']}'
 else:
     print 'Не указаны параметры подключения: ./transmission.py IP PORT'
-
